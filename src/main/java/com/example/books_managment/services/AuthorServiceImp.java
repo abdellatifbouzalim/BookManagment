@@ -2,6 +2,7 @@ package com.example.books_managment.services;
 
 import com.example.books_managment.entities.Author;
 import com.example.books_managment.entities.Book;
+import com.example.books_managment.exceptions.CannotDeleteAuthorException;
 import com.example.books_managment.exceptions.NotFoundException;
 import com.example.books_managment.repository.AuthorRepository;
 import com.example.books_managment.repository.BookRepository;
@@ -38,7 +39,7 @@ public class AuthorServiceImp implements AuthorService {
             Author author = optionalAuthor.get();
             List<Book> books = author.getBooks();
             if (!books.isEmpty()) {
-                throw new NotFoundException("Cannot delete author as they have associated books.");
+                throw new CannotDeleteAuthorException("Cannot delete author as they have associated books.");
             } else {
                 authorRepository.deleteById(id);
                 return "Author deleted successfully.";
@@ -57,7 +58,7 @@ public class AuthorServiceImp implements AuthorService {
             existingAuthor.setLastName(updatedAuthor.getLastName());
             return authorRepository.save(existingAuthor);
         } else {
-            return null;
+            throw new NotFoundException("Author not found with id: " + id);
         }
     }
 

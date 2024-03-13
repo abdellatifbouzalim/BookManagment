@@ -3,6 +3,7 @@ package com.example.books_managment.controllers;
 import com.example.books_managment.entities.Book;
 import com.example.books_managment.exceptions.NotFoundException;
 import com.example.books_managment.services.BookService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,20 +29,24 @@ public class BookController {
     // Get a book by its ID
     @GetMapping("/{id}")
     public ResponseEntity<Book> getBookById(@PathVariable Long id) {
-        Book book = bookService.getBookById(id);
-        return book != null ? ResponseEntity.ok(book) : ResponseEntity.notFound().build();
+        try {
+            Book book = bookService.getBookById(id);
+            return ResponseEntity.ok(book);
+        } catch (NotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // Add a new book
     @PostMapping
-    public ResponseEntity<Book> addBook(@RequestBody Book book) {
+    public ResponseEntity<Book> addBook(@Valid  @RequestBody Book book) {
         Book createdBook = bookService.addBook(book);
         return new ResponseEntity<>(createdBook, HttpStatus.CREATED);
     }
 
     // Update a book
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateBook(@PathVariable Long id, @RequestBody Book book) {
+    public ResponseEntity<?> updateBook(@PathVariable Long id,@Valid @RequestBody Book book) {
         try {
             Book updatedBook = bookService.updateBook(id, book);
             return ResponseEntity.ok(updatedBook);
@@ -50,12 +55,14 @@ public class BookController {
         }
     }
 
-
     // Delete a book
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
-        bookService.deleteBook(id);
-        return ResponseEntity.noContent().build();
+        try {
+            bookService.deleteBook(id);
+            return ResponseEntity.noContent().build();
+        } catch (NotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
-
 }
